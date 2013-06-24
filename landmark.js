@@ -6,13 +6,15 @@
     //
     //--------------------------------------------------------------------------
 
+    host : "landmark.io",
+    port : 80,
+
     // The user identifier & data.
     userId : null,
     traits : null,
 
     // The pending event to be sent once the library is initialized.
     pendingEvent : null,
-    pendingCallback : null,
 
     // A flag stating if user level data has been sent to the server yet.
     // User level data will be sent with the first event or will be sent
@@ -31,13 +33,37 @@
     //----------------------------------
 
     /**
-     * Initializes the Landmark API.
+     * Initializes the Landmark API with the API key.
      *
      * @param {String} apiKey  The API key.
      */
     initialize : function(apiKey) {
       this.apiKey = apiKey;
       return true;
+    },
+
+    /**
+     * @private
+     * Internal initialization for the API once the web page is loaded.
+     */
+    __initialize__ : function() {
+      this.initialized = true;
+
+      // Call existing onload handler.
+      if(typeof(onload) == "function") onload();
+
+      // Delay first action until after initialization.
+      if(this.traits || this.pendingEvent) {
+        this.send(this.pendingEvent);
+      }
+    },
+
+    /**
+     * @private
+     * Internal function used for testing.
+     */
+    __uninitialize__ : function() {
+      this.initialized = false;
     },
 
 
@@ -71,18 +97,17 @@
      * @param {String} action      The name of the action to track.
      * @param {Object} properties  The action properties.
      */
-    track : function(action, properties, callback) {
+    track : function(action, properties) {
       if(typeof(properties) != "object") properties = {};
       event = this.extend({}, properties, {action:action});
       
       // If the library has been initialized then send it.
       if(this.initialized) {
-        return this.send(event, callback)
+        return this.send(event)
       }
       // Otherwise wait for initialization and it'll be sent later.
       else {
         this.pendingEvent = event;
-        this.pendingCallback = callback;
       }
     },
 
@@ -91,7 +116,7 @@
      *
      * @param {Object} data  The event data to send.
      */
-    send : function(data, callback) {
+    send : function(data) {
       if(!this.apiKey) {
         self.log("[landmark] API Key required. Please call landmark.initialize() first.");
         return;
@@ -102,12 +127,9 @@
       }
       
       var event = this.extend({}, this.traits, data, {apiKey: this.apiKey, id: this.userId});
-      if(event['action']) {
-        event['_action'] = event['action'];
-        delete event['action'];
-      }
+      this.traits = {};
 
-      return this.post("/track", event, callback);
+      return this.post("/track", event);
     },
 
     
@@ -128,19 +150,19 @@
     /**
      * Sends a JSON object over XHR POST.
      * 
-     * @param {String} url   The url to send to.
+     * @param {String} path   The path to send to.
      * @param {Object} data  The object to convert to JSON and send.
-     * @param {Function} callback  The function to call when successfully executed.
      *
      * @return {XMLHTTPRequest}  The XHR that was created.
      */
-    post : function(url, data, callback) {
+    post : function(path, data) {
+      var url = location.protocol + "//" + landmark.host + ":" + landmark.port + path;
       var xhr = new XMLHttpRequest();
       if("withCredentials" in xhr) {
         xhr.open("POST", url, true);
       } else if (typeof XDomainRequest != "undefined") {
         xhr = new XDomainRequest();
-        xhr.open(method, url);
+        xhr.open("POST", url);
       } else {
         self.log("[landmark] CORS not supported in this browser.");
         return null;
@@ -151,9 +173,6 @@
       xhr.onload = function() {
         var response = {};
         try { response = JSON.parse(xhr.responseText); } catch(e){}
-        if(typeof(callback) == "function") {
-          callback(response);
-        }
       };
       xhr.onerror = function() {
         var response = {};
@@ -200,15 +219,7 @@
   // Wrap existing onload.
   var onload = window.onload;
   window.onload = function() {
-    landmark.initialized = true;
-
-    // Call existing onload handler.
-    if(typeof(onload) == "function") onload();
-
-    // Delay first action until after initialization.
-    if(landmark.traits || landmark.pendingEvent) {
-      landmark.send(landmark.pendingEvent, landmark.pendingCallback);
-    }
+    landmark.__initialize__();
   }
 
   window.landmark = landmark;
