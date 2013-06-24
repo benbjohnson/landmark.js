@@ -148,14 +148,14 @@
     },
 
     /**
-     * Sends a JSON object over XHR POST.
+     * Creates a new XHR object, if possible.
      * 
      * @param {String} path   The path to send to.
      * @param {Object} data  The object to convert to JSON and send.
      *
      * @return {XMLHTTPRequest}  The XHR that was created.
      */
-    post : function(path, data) {
+    createXMLHttpRequest : function(method, path, loadHandler, errorHandler) {
       var url = location.protocol + "//" + landmark.host + ":" + landmark.port + path;
       var xhr = new XMLHttpRequest();
       if("withCredentials" in xhr) {
@@ -167,23 +167,41 @@
         self.log("[landmark] CORS not supported in this browser.");
         return null;
       }
-      var self = this;
       
-      // Response handlers.
-      xhr.onload = function() {
-        var response = {};
-        try { response = JSON.parse(xhr.responseText); } catch(e){}
-      };
-      xhr.onerror = function() {
-        var response = {};
-        try { response = JSON.parse(xhr.responseText); } catch(e){}
-        self.log("[landmark] POST " + url + " " + response.message, data);
-      };
+      xhr.onload = loadHandler;
+      xhr.onerror = errorHandler;
 
-      // Send request.
       xhr.setRequestHeader("Content-type", "application/json");
       xhr.setRequestHeader("Cache-Control", "no-cache");
+      return xhr;
+    },
+
+    /**
+     * Sends a JSON object over XHR POST.
+     * 
+     * @param {String} path   The path to send to.
+     * @param {Object} data  The object to convert to JSON and send.
+     *
+     * @return {XMLHTTPRequest}  The XHR that was created.
+     */
+    post : function(path, data) {
+      var self = this;
+      var xhr = this.createXMLHttpRequest("POST", path,
+        function() {
+          var response = {};
+          try { response = JSON.parse(xhr.responseText); } catch(e){}
+        },
+        function() {
+          var response = {};
+          try { response = JSON.parse(xhr.responseText); } catch(e){}
+          self.log("[landmark] POST " + url + " " + response.message, data);
+        }
+      );
+      if(xhr == null) return null;
+      
+      // Send request.
       xhr.send(JSON.stringify(data));
+      return xhr;
     },
 
     /**

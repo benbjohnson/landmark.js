@@ -12,8 +12,12 @@ module("landmark.js", {
     requests = [];
     landmark.__uninitialize__();
     landmark.initialize(API_KEY);
-    landmark.post = function(url, data) {
-      requests.push({url:url, data:data});
+    landmark.createXMLHttpRequest = function(method, path, loadHandler, errorHandler) {
+      var xhr = {};
+      xhr.send = function(data) {
+        requests.push({method:method, path:path, data:JSON.parse(data)});
+      }
+      return xhr;
     }
   },
   teardown: function() {
@@ -28,11 +32,15 @@ module("landmark.js", {
 //
 //------------------------------------------------------------------------------
 
+//--------------------------------------
+// Basic identify/track
+//--------------------------------------
+
 test("Identify() should issue a request", function() {
   landmark.identify("foo", {"name":"Susy Q"});
   landmark.__initialize__();
   equal(requests.length, 1);
-  equal(requests[0].url, "/track");
+  equal(requests[0].path, "/track");
   deepEqual(requests[0].data, {
     "apiKey": "0000", 
     "id": "foo", 
