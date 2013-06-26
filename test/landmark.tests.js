@@ -12,7 +12,7 @@ window.onload = function() {};
 //
 //------------------------------------------------------------------------------
 
-module("Basics", {
+module("Basic", {
   setup: function() {
     landmark.log("TEST");
     requests = [], logs = [];

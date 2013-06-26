@@ -91,7 +91,7 @@
      */
     track : function(action, properties) {
       if(typeof(properties) != "object") properties = {};
-      event = this.extend({}, properties, {action:action});
+      event = extend({}, properties, {action:action});
       return this.send(event)
     },
 
@@ -109,14 +109,14 @@
 
       // Create an event object with just the traits and properties and exit
       // if there aren't any to send.
-      var event = this.extend({}, this.traits, data);
+      var event = extend({}, this.traits, data);
       this.traits = null;
       if(isEmpty(event)) {
         return;
       }
       
       // Add in the API key and user id.
-      event = this.extend(event, {apiKey: this.apiKey, id: this.userId});
+      event = extend(event, {apiKey: this.apiKey, id: this.userId});
 
       // Send event data to "POST /track".
       return this.post("/track", event);
@@ -190,27 +190,6 @@
       xhr.send(JSON.stringify(data));
       return xhr;
     },
-
-    /**
-     * Merges the properties of multiple objects together.
-     * Original: https://github.com/documentcloud/underscore/blob/master/underscore.js
-     *
-     * @param {Object} obj  The object to extend.
-     */
-    extend : function(obj) {
-      if(typeof(obj) != "object") return;
-
-      var args = Array.prototype.slice.call(arguments, 1);
-      for(var i=0; i<args.length; i++) {
-        var source = args[i];
-        if (typeof(source) == "object" && source != null && source != undefined) {
-          for (var property in source) {
-            obj[property] = source[property];
-          }
-        }
-      }
-      return obj;
-    },
   };
 
   //--------------------------------------------------------------------------
@@ -221,6 +200,7 @@
   
   /**
    * Checks if an object has any keys/values.
+   * Original: https://github.com/documentcloud/underscore/blob/master/underscore.js
    */
   function isEmpty(obj) {
     if(obj == null) return true;
@@ -232,6 +212,26 @@
     return true;
   };
 
+  /**
+   * Merges the properties of multiple objects together.
+   * Original: https://github.com/documentcloud/underscore/blob/master/underscore.js
+   *
+   * @param {Object} obj  The object to extend.
+   */
+  function extend(obj) {
+    if(typeof(obj) != "object") return;
+
+    var args = Array.prototype.slice.call(arguments, 1);
+    for(var i=0; i<args.length; i++) {
+      var source = args[i];
+      if (typeof(source) == "object" && source != null && source != undefined) {
+        for (var property in source) {
+          obj[property] = source[property];
+        }
+      }
+    }
+    return obj;
+  }
 
   //--------------------------------------------------------------------------
   //
