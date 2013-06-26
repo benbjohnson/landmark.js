@@ -141,3 +141,14 @@ test("Server errors should be logged to the console", function() {
   deepEqual(logs[0].slice(0, 2), ["[landmark] POST /track", {message:"Something went wrong"}]);
 });
 
+
+//--------------------------------------
+// Array Style Interface
+//--------------------------------------
+
+test("Track() and Identify() should work using a push() style interface", function() {
+  landmark.push("identify", "foo", {"name":"Susy Q"});
+  landmark.__initialize__();
+  landmark.push("track", "/checkout.html", {"total":200});
+  equal(requests.length, 2);
+});

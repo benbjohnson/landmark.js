@@ -60,6 +60,22 @@
 
 
     //----------------------------------
+    // Array-style interface
+    //----------------------------------
+
+    /**
+     * Executes a method on the landmark object using the push() method.
+     *
+     * @param {String} methodName  The name of the method to execute.
+     * @param {Array} arguments  A list of arguments to pass to the method.
+     */
+    push : function(methodName) {
+      var args = Array.prototype.slice.call(arguments, 1);
+      return landmark[methodName].apply(landmark, args);
+    },
+
+
+    //----------------------------------
     // Identification
     //----------------------------------
 
