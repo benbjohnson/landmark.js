@@ -1,5 +1,9 @@
 var API_KEY = "0000";
 var requests, logs;
+var responseText = null, errorText = null;
+
+var createXMLHttpRequest = landmark.createXMLHttpRequest;
+var onload = window.onload;
 window.onload = function() {};
 
 //------------------------------------------------------------------------------
@@ -8,7 +12,7 @@ window.onload = function() {};
 //
 //------------------------------------------------------------------------------
 
-module("landmark.js", {
+module("Basics", {
   setup: function() {
     landmark.log("TEST");
     requests = [], logs = [];
@@ -18,11 +22,18 @@ module("landmark.js", {
       var xhr = {};
       xhr.send = function(data) {
         requests.push({method:method, path:path, data:JSON.parse(data)});
+        if(responseText) { xhr.responseText = responseText; loadHandler(); }
+        if(errorText) { xhr.responseText = errorText; errorHandler(); }
+        responseText = errorText = null;
       }
       return xhr;
     };
     landmark.log = function() {
-      logs.push.apply(logs, arguments);
+      var entry = [];
+      for(var i=0; i<arguments.length; i++) {
+        entry.push(arguments[i]);
+      }
+      logs.push(entry);
     }
   },
   teardown: function() {
@@ -119,5 +130,14 @@ test("Send() without an API key should log an error", function() {
   landmark.__initialize__();
   equal(requests.length, 0);
   equal(logs.length, 1);
-  equal(logs[0], "[landmark] API Key required. Please call landmark.initialize() first.");
+  deepEqual(logs[0], ["[landmark] API Key required. Please call landmark.initialize() first."]);
 });
+
+test("Server errors should be logged to the console", function() {
+  errorText = '{"message":"Something went wrong"}'
+  landmark.identify("foo", {"name":"Susy Q"});
+  landmark.__initialize__();
+  equal(logs.length, 1);
+  deepEqual(logs[0].slice(0, 2), ["[landmark] POST /track", {message:"Something went wrong"}]);
+});
+

@@ -146,7 +146,7 @@
      * @return {XMLHTTPRequest}  The XHR that was created.
      */
     createXMLHttpRequest : function(method, path, loadHandler, errorHandler) {
-      var url = location.protocol + "//" + landmark.host + ":" + landmark.port + path;
+      var url = location.protocol + "//" + this.host + ":" + this.port + path;
       var xhr = new XMLHttpRequest();
       if("withCredentials" in xhr) {
         xhr.open("POST", url, true);
@@ -154,7 +154,7 @@
         xhr = new XDomainRequest();
         xhr.open("POST", url);
       } else {
-        self.log("[landmark] CORS not supported in this browser.");
+        this.log("[landmark] CORS not supported in this browser.");
         return null;
       }
       
@@ -177,14 +177,11 @@
     post : function(path, data) {
       var self = this;
       var xhr = this.createXMLHttpRequest("POST", path,
+        function() {},
         function() {
           var response = {};
           try { response = JSON.parse(xhr.responseText); } catch(e){}
-        },
-        function() {
-          var response = {};
-          try { response = JSON.parse(xhr.responseText); } catch(e){}
-          self.log("[landmark] POST " + url + " " + response.message, data);
+          self.log("[landmark] POST " + path, response, data);
         }
       );
       if(xhr == null) return null;
@@ -213,14 +210,6 @@
         }
       }
       return obj;
-    },
-
-    /**
-     * Performs a shallow clone of an object.
-     */
-    clone : function(obj) {
-      if(!obj) return;
-      return this.extend({}, obj);
     },
   };
 
