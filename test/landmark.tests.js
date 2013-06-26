@@ -79,3 +79,20 @@ test("Identify() before init and Track() after init should issue two requests", 
     "total": 200
   });
 });
+
+test("Reidentification after init should send a new request.", function() {
+  landmark.identify("foo", {"name":"Susy Q"});
+  landmark.__initialize__();
+  landmark.identify("foo", {"name":"Bob Smith"});
+  equal(requests.length, 2);
+  deepEqual(requests[0].data, {
+    "apiKey": "0000",
+    "id": "foo",
+    "name": "Susy Q"
+  });
+  deepEqual(requests[1].data, {
+    "apiKey": "0000",
+    "id": "foo",
+    "name": "Bob Smith"
+  });
+});
