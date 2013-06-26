@@ -1,5 +1,5 @@
 var API_KEY = "0000";
-var requests;
+var requests, logs;
 
 //------------------------------------------------------------------------------
 //
@@ -9,7 +9,7 @@ var requests;
 
 module("landmark.js", {
   setup: function() {
-    requests = [];
+    requests = [], logs = [];
     landmark.__uninitialize__();
     landmark.initialize(API_KEY);
     landmark.createXMLHttpRequest = function(method, path, loadHandler, errorHandler) {
@@ -18,6 +18,9 @@ module("landmark.js", {
         requests.push({method:method, path:path, data:JSON.parse(data)});
       }
       return xhr;
+    };
+    landmark.log = function() {
+      logs.push.apply(logs, arguments);
     }
   },
   teardown: function() {
@@ -95,4 +98,18 @@ test("Reidentification after init should send a new request.", function() {
     "id": "foo",
     "name": "Bob Smith"
   });
+});
+
+
+//--------------------------------------
+// Error Handling
+//--------------------------------------
+
+test("Send() without an API key should log an error", function() {
+  landmark.initialize(null);
+  landmark.identify("foo", {"name":"Susy Q"});
+  landmark.__initialize__();
+  equal(requests.length, 0);
+  equal(logs.length, 1);
+  equal(logs[0], "[landmark] API Key required. Please call landmark.initialize() first.");
 });

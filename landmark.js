@@ -107,7 +107,7 @@
      */
     send : function(data) {
       if(!this.apiKey) {
-        self.log("[landmark] API Key required. Please call landmark.initialize() first.");
+        this.log("[landmark] API Key required. Please call landmark.initialize() first.");
         return;
       }
       if(!this.userId) {
