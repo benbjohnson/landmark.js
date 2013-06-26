@@ -1,5 +1,6 @@
 var API_KEY = "0000";
 var requests, logs;
+window.onload = function() {};
 
 //------------------------------------------------------------------------------
 //
@@ -9,6 +10,7 @@ var requests, logs;
 
 module("landmark.js", {
   setup: function() {
+    landmark.log("TEST");
     requests = [], logs = [];
     landmark.__uninitialize__();
     landmark.initialize(API_KEY);
@@ -39,7 +41,7 @@ module("landmark.js", {
 // Basic identify/track
 //--------------------------------------
 
-test("Identify() should issue a request", function() {
+test("Identify() with traits should issue a request", function() {
   landmark.identify("foo", {"name":"Susy Q"});
   landmark.__initialize__();
   equal(requests.length, 1);
@@ -49,6 +51,12 @@ test("Identify() should issue a request", function() {
     "id": "foo", 
     "name": "Susy Q"
   });
+});
+
+test("Identify() without traits should not issue a request", function() {
+  landmark.identify("foo");
+  landmark.__initialize__();
+  equal(requests.length, 0);
 });
 
 test("Identify() and Track() before initialization should issue one request", function() {

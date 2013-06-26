@@ -46,13 +46,8 @@
     __initialize__ : function() {
       this.initialized = true;
 
-      // Call existing onload handler.
-      if(typeof(onload) == "function") onload();
-
       // Send off identification if a track() hasn't already sent it.
-      if(this.traits) {
-        this.send(this.traits);
-      }
+      this.send();
     },
 
     /**
@@ -106,15 +101,12 @@
      * @param {Object} data  The event data to send.
      */
     send : function(data) {
+      // Notify the JavaScript console if the user don't have an API key set.
       if(!this.apiKey) {
         this.log("[landmark] API Key required. Please call landmark.initialize() first.");
         return;
       }
-      if(!this.userId) {
-        this.log("[landmark] User identifier required. Please call landmark.identify() first.");
-        return;
-      }
-      
+
       // Create an event object with just the traits and properties and exit
       // if there aren't any to send.
       var event = this.extend({}, this.traits, data);
@@ -262,6 +254,7 @@
   var onload = window.onload;
   window.onload = function() {
     landmark.__initialize__();
+    if(typeof(onload) == "function") onload();
   }
 
   window.landmark = landmark;
