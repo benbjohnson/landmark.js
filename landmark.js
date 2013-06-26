@@ -13,9 +13,6 @@
     userId : null,
     traits : null,
 
-    // The pending event to be sent once the library is initialized.
-    pendingEvent : null,
-
     // A flag stating if user level data has been sent to the server yet.
     // User level data will be sent with the first event or will be sent
     // by itself if no event is available after initialization.
@@ -52,9 +49,9 @@
       // Call existing onload handler.
       if(typeof(onload) == "function") onload();
 
-      // Delay first action until after initialization.
-      if(this.traits || this.pendingEvent) {
-        this.send(this.pendingEvent);
+      // Send off identification if a track() hasn't already sent it.
+      if(this.traits) {
+        this.send(this.traits);
       }
     },
 
@@ -100,15 +97,7 @@
     track : function(action, properties) {
       if(typeof(properties) != "object") properties = {};
       event = this.extend({}, properties, {action:action});
-      
-      // If the library has been initialized then send it.
-      if(this.initialized) {
-        return this.send(event)
-      }
-      // Otherwise wait for initialization and it'll be sent later.
-      else {
-        this.pendingEvent = event;
-      }
+      return this.send(event)
     },
 
     /**
@@ -126,9 +115,18 @@
         return;
       }
       
-      var event = this.extend({}, this.traits, data, {apiKey: this.apiKey, id: this.userId});
-      this.traits = {};
+      // Create an event object with just the traits and properties and exit
+      // if there aren't any to send.
+      var event = this.extend({}, this.traits, data);
+      this.traits = null;
+      if(isEmpty(event)) {
+        return;
+      }
+      
+      // Add in the API key and user id.
+      event = this.extend(event, {apiKey: this.apiKey, id: this.userId});
 
+      // Send event data to "POST /track".
       return this.post("/track", event);
     },
 
@@ -215,7 +213,7 @@
 
       var args = Array.prototype.slice.call(arguments, 1);
       for(var i=0; i<args.length; i++) {
-        source = args[i];
+        var source = args[i];
         if (typeof(source) == "object" && source != null && source != undefined) {
           for (var property in source) {
             obj[property] = source[property];
@@ -233,6 +231,32 @@
       return this.extend({}, obj);
     },
   };
+
+  //--------------------------------------------------------------------------
+  //
+  // Private Methods
+  //
+  //--------------------------------------------------------------------------
+  
+  /**
+   * Checks if an object has any keys/values.
+   */
+  function isEmpty(obj) {
+    if(obj == null) return true;
+    for(var key in obj) {
+      if(hasOwnProperty.call(obj, key)) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+
+  //--------------------------------------------------------------------------
+  //
+  // Events
+  //
+  //--------------------------------------------------------------------------
 
   // Wrap existing onload.
   var onload = window.onload;
