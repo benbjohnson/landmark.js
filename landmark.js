@@ -154,6 +154,15 @@
     },
 
     /**
+     * Generalizes a path by replacing numeric directories with a zero.
+     */
+    path : function(str) {
+      if(typeof(str) != "string") return str;
+      str = str.replace(/\/(\d+)(?=\/|$)/g, "/0");
+      return str;
+    },
+
+    /**
      * Creates a new XHR object, if possible.
      * 
      * @param {String} path   The path to send to.

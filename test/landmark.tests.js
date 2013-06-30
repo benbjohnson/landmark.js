@@ -152,3 +152,13 @@ test("Track() and Identify() should work using a push() style interface", functi
   landmark.push("track", "/checkout.html", {"total":200});
   equal(requests.length, 2);
 });
+
+
+//--------------------------------------
+// Utility
+//--------------------------------------
+
+test("Generalize path should replace numeric sections of path", function() {
+  var path = landmark.path("/accounts/123/users/456");
+  equal(path, "/accounts/0/users/0");
+});
