@@ -2,6 +2,7 @@
 
 require 'bundler/setup'
 require 'sinatra'
+require 'json'
 require 'rack/cors'
 
 set :port, 8000
@@ -11,12 +12,12 @@ set :public_folder, "."
 use Rack::Cors do |config|
   config.allow do |allow|
     allow.origins '*'
-    allow.resource '/echo', :methods => [:post], :headers => :any
+    allow.resource '/echo', :methods => [:get], :headers => :any
   end
 end
 
 # Echos back exactly what was sent into the body.
-post '/echo' do
-  return request.body.read()
+get '/echo' do
+  return JSON.generate(params)
 end
 

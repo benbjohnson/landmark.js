@@ -131,11 +131,26 @@
         return;
       }
       
-      // Add in the API key and user id.
-      event = extend(event, {apiKey: this.apiKey, id: this.userId});
+      // Send event data to "GET /track".
+      var path = "/track";
+      path += "?apiKey=" + encodeURIComponent(this.apiKey);
+      path += "&id=" + encodeURIComponent(this.userId);
+      path += "&data=" + encodeURIComponent(JSON.stringify(event));
 
-      // Send event data to "POST /track".
-      return this.post("/track", event);
+      var self = this;
+      var xhr = this.createXMLHttpRequest("GET", path,
+        function() {},
+        function() {
+          var response = {};
+          try { response = JSON.parse(xhr.responseText); } catch(e){}
+          self.log("[landmark] GET " + path, response, data);
+        }
+      );
+      if(xhr == null) return null;
+      
+      // Send request.
+      xhr.send();
+      return xhr;
     },
 
     
@@ -175,10 +190,10 @@
       var url = location.protocol + "//" + this.host + ":" + this.port + path;
       var xhr = new XMLHttpRequest();
       if("withCredentials" in xhr) {
-        xhr.open("POST", url, true);
+        xhr.open(method, url, true);
       } else if (typeof XDomainRequest != "undefined") {
         xhr = new XDomainRequest();
-        xhr.open("POST", url);
+        xhr.open(method, url);
       } else {
         this.log("[landmark] CORS not supported in this browser.");
         return null;
@@ -189,31 +204,6 @@
 
       xhr.setRequestHeader("Content-type", "application/json");
       xhr.setRequestHeader("Cache-Control", "no-cache");
-      return xhr;
-    },
-
-    /**
-     * Sends a JSON object over XHR POST.
-     * 
-     * @param {String} path   The path to send to.
-     * @param {Object} data  The object to convert to JSON and send.
-     *
-     * @return {XMLHTTPRequest}  The XHR that was created.
-     */
-    post : function(path, data) {
-      var self = this;
-      var xhr = this.createXMLHttpRequest("POST", path,
-        function() {},
-        function() {
-          var response = {};
-          try { response = JSON.parse(xhr.responseText); } catch(e){}
-          self.log("[landmark] POST " + path, response, data);
-        }
-      );
-      if(xhr == null) return null;
-      
-      // Send request.
-      xhr.send(JSON.stringify(data));
       return xhr;
     },
   };
