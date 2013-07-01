@@ -174,7 +174,7 @@
      */
     path : function(str) {
       if(typeof(str) != "string") return str;
-      str = str.replace(/\/(\d+|\d+-[^\/]+)(?=\/|$)/g, "/0");
+      str = str.replace(/\/(\d+|\d+-[^\/]+)(?=\/|$)/g, "/*");
       return str;
     },
 

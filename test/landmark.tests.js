@@ -131,6 +131,6 @@ test("Track() and Identify() should work using a push() style interface", functi
 //--------------------------------------
 
 test("Generalize path should replace numeric sections of path", function() {
-  equal(landmark.path("/accounts/123/users/456"), "/accounts/0/users/0");
-  equal(landmark.path("/accounts/123-apple-computer/users/456-steve-jobs"), "/accounts/0/users/0");
+  equal(landmark.path("/accounts/123/users/456"), "/accounts/*/users/*");
+  equal(landmark.path("/accounts/123-apple-computer/users/456-steve-jobs"), "/accounts/*/users/*");
 });
