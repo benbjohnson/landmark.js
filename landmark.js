@@ -154,11 +154,12 @@
     },
 
     /**
-     * Generalizes a path by replacing numeric directories with a zero.
+     * Generalizes a path by replacing numeric directories with a zero. This
+     * function also replaces directories starting with a number and a dash.
      */
     path : function(str) {
       if(typeof(str) != "string") return str;
-      str = str.replace(/\/(\d+)(?=\/|$)/g, "/0");
+      str = str.replace(/\/(\d+|\d+-[^\/]+)(?=\/|$)/g, "/0");
       return str;
     },
 
