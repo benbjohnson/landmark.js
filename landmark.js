@@ -122,6 +122,11 @@
         this.log("[landmark] API Key required. Please call landmark.initialize() first.");
         return;
       }
+      // Temporary: Notify the console if the user is not identified.
+      if(!this.userId) {
+        this.log("[landmark] User is not identified.");
+        return;
+      }
 
       // Create an event object with just the traits and properties and exit
       // if there aren't any to send.
