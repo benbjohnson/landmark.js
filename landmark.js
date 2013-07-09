@@ -7,7 +7,7 @@
     //--------------------------------------------------------------------------
 
     host : "landmark.io",
-    port : 80,
+    port : null,
 
     // The user identifier & data.
     userId : null,
@@ -187,7 +187,7 @@
      * @return {XMLHTTPRequest}  The XHR that was created.
      */
     createXMLHttpRequest : function(method, path, loadHandler, errorHandler) {
-      var url = location.protocol + "//" + this.host + ":" + this.port + path;
+      var url = location.protocol + "//" + this.host + (this.port > 0 ? ":" + this.port : "") + path;
       var xhr = new XMLHttpRequest();
       if("withCredentials" in xhr) {
         xhr.open(method, url, true);
