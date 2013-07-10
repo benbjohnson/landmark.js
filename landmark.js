@@ -107,7 +107,7 @@
      */
     track : function(action, properties) {
       if(typeof(properties) != "object") properties = {};
-      event = extend({}, properties, {action:action});
+      var event = extend({}, properties, {action:action});
       return this.send(event)
     },
 
@@ -169,7 +169,11 @@
      */
     log : function() {
       if(window.console) {
-        console.log.apply(console, arguments);
+        if(console.log.apply) {
+          console.log.apply(console, arguments);
+        } else {
+          console.log(arguments);
+        }
       }
     },
 
@@ -196,6 +200,8 @@
       var xhr = new XMLHttpRequest();
       if("withCredentials" in xhr) {
         xhr.open(method, url, true);
+        xhr.setRequestHeader("Content-type", "application/json");
+        xhr.setRequestHeader("Cache-Control", "no-cache");
       } else if (typeof XDomainRequest != "undefined") {
         xhr = new XDomainRequest();
         xhr.open(method, url);
@@ -207,8 +213,6 @@
       xhr.onload = loadHandler;
       xhr.onerror = errorHandler;
 
-      xhr.setRequestHeader("Content-type", "application/json");
-      xhr.setRequestHeader("Cache-Control", "no-cache");
       return xhr;
     },
   };
@@ -226,7 +230,7 @@
   function isEmpty(obj) {
     if(obj == null) return true;
     for(var key in obj) {
-      if(hasOwnProperty.call(obj, key)) {
+      if(obj.hasOwnProperty(key)) {
         return false;
       }
     }
