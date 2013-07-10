@@ -16,6 +16,11 @@ use Rack::Cors do |config|
   end
 end
 
+# Redirect to test page.
+get '/' do
+  redirect to('/test/index.html')
+end
+
 # Echos back exactly what was sent into the body.
 get '/echo' do
   return JSON.generate(params)
