@@ -55,8 +55,9 @@ module("Basic", {
 test("Identify() with traits should issue a request", function() {
   landmark.identify("foo", {"name":"Susy Q"});
   landmark.__initialize__();
+  equal(logs.length, 0);
   equal(requests.length, 1);
-  equal(requests[0].path, "/track?apiKey=0000&id=foo&data=%7B%22name%22%3A%22Susy%20Q%22%7D");
+  equal(requests[0].path, "/track?apiKey=0000&id=foo&traits=%7B%22name%22%3A%22Susy%20Q%22%7D");
 });
 
 test("Identify() without traits should not issue a request", function() {
@@ -70,7 +71,7 @@ test("Identify() and Track() before initialization should issue one request", fu
   landmark.track("/checkout.html", {"total":200});
   landmark.__initialize__();
   equal(requests.length, 1);
-  equal(requests[0].path, "/track?apiKey=0000&id=foo&data=%7B%22name%22%3A%22Susy%20Q%22%2C%22total%22%3A200%2C%22action%22%3A%22%2Fcheckout.html%22%7D");
+  equal(requests[0].path, "/track?apiKey=0000&id=foo&traits=%7B%22name%22%3A%22Susy%20Q%22%7D&properties=%7B%22total%22%3A200%2C%22action%22%3A%22%2Fcheckout.html%22%7D");
 });
 
 test("Identify() before init and Track() after init should issue two requests", function() {
@@ -78,8 +79,8 @@ test("Identify() before init and Track() after init should issue two requests", 
   landmark.__initialize__();
   landmark.track("/checkout.html", {"total":200});
   equal(requests.length, 2);
-  equal(requests[0].path, "/track?apiKey=0000&id=foo&data=%7B%22name%22%3A%22Susy%20Q%22%7D");
-  equal(requests[1].path, "/track?apiKey=0000&id=foo&data=%7B%22total%22%3A200%2C%22action%22%3A%22%2Fcheckout.html%22%7D");
+  equal(requests[0].path, "/track?apiKey=0000&id=foo&traits=%7B%22name%22%3A%22Susy%20Q%22%7D");
+  equal(requests[1].path, "/track?apiKey=0000&id=foo&properties=%7B%22total%22%3A200%2C%22action%22%3A%22%2Fcheckout.html%22%7D");
 });
 
 test("Reidentification after init should send a new request.", function() {
@@ -87,8 +88,8 @@ test("Reidentification after init should send a new request.", function() {
   landmark.__initialize__();
   landmark.identify("foo", {"name":"Bob Smith"});
   equal(requests.length, 2);
-  equal(requests[0].path, "/track?apiKey=0000&id=foo&data=%7B%22name%22%3A%22Susy%20Q%22%7D");
-  equal(requests[1].path, "/track?apiKey=0000&id=foo&data=%7B%22name%22%3A%22Bob%20Smith%22%7D");
+  equal(requests[0].path, "/track?apiKey=0000&id=foo&traits=%7B%22name%22%3A%22Susy%20Q%22%7D");
+  equal(requests[1].path, "/track?apiKey=0000&id=foo&traits=%7B%22name%22%3A%22Bob%20Smith%22%7D");
 });
 
 
@@ -110,7 +111,7 @@ test("Server errors should be logged to the console", function() {
   landmark.identify("foo", {"name":"Susy Q"});
   landmark.__initialize__();
   equal(logs.length, 1);
-  deepEqual(logs[0].slice(0, 2), ["[landmark] GET /track?apiKey=0000&id=foo&data=%7B%22name%22%3A%22Susy%20Q%22%7D", {message:"Something went wrong"}]);
+  deepEqual(logs[0].slice(0, 2), ["[landmark] GET /track?apiKey=0000&id=foo&traits=%7B%22name%22%3A%22Susy%20Q%22%7D", {message:"Something went wrong"}]);
 });
 
 

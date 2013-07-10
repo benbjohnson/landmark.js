@@ -114,9 +114,9 @@
     /**
      * Sends an event with the current identity, data and action.
      *
-     * @param {Object} data  The event data to send.
+     * @param {Object} properties  The event properties to send.
      */
-    send : function(data) {
+    send : function(properties) {
       // Notify the JavaScript console if the user don't have an API key set.
       if(!this.apiKey) {
         this.log("[landmark] API Key required. Please call landmark.initialize() first.");
@@ -128,11 +128,10 @@
         return;
       }
 
-      // Create an event object with just the traits and properties and exit
-      // if there aren't any to send.
-      var event = extend({}, this.traits, data);
+      // Throw away the traits after we save them once.
+      var traits = this.traits;
       this.traits = null;
-      if(isEmpty(event)) {
+      if(isEmpty(traits) && isEmpty(properties)) {
         return;
       }
       
@@ -140,7 +139,12 @@
       var path = "/track";
       path += "?apiKey=" + encodeURIComponent(this.apiKey);
       path += "&id=" + encodeURIComponent(this.userId);
-      path += "&data=" + encodeURIComponent(JSON.stringify(event));
+      if(!isEmpty(traits)) {
+        path += "&traits=" + encodeURIComponent(JSON.stringify(traits));
+      }
+      if(!isEmpty(properties)) {
+        path += "&properties=" + encodeURIComponent(JSON.stringify(properties));
+      }
 
       var self = this;
       var xhr = this.createXMLHttpRequest("GET", path,
@@ -148,7 +152,7 @@
         function() {
           var response = {};
           try { response = JSON.parse(xhr.responseText); } catch(e){}
-          self.log("[landmark] GET " + path, response, data);
+          self.log("[landmark] GET " + path, response, traits, properties);
         }
       );
       if(xhr == null) return null;
