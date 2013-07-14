@@ -262,6 +262,48 @@
     return obj;
   }
 
+  /**
+   * Sets a root domain, first-party cookie. Setting a null value will delete
+   * cookie.
+   *
+   * @param {String} name   The name of the key to set.
+   * @param {String} vlaue  The value of the key to set.
+   */
+  function setCookie(name,value) {
+    var regex = /.+\.((?:[^.]+)\.(?:com|net|org|edu|co.uk|io))$/;
+
+    var domain = "";
+    if(location.hostname.search(regex) != -1) {
+      "; domain=." + location.hostname.replace(regex, "$1");
+    }
+
+    var expires = "; expires=" + (value != null ? (new Date(2000000000000)).toGMTString() : "-1");
+
+    if(value == null) value = "";
+    document.cookie = name + "=" + value + expires + domain + "; path=/";
+  }
+
+  /**
+   * Retrieves a cookie.
+   *
+   * @param {String} name   The name of the cookie to retrieve.
+   */
+  function getCookie(name) {
+    var arr = document.cookie.split(';');
+    for(var i=0; i<arr.length;i++) {
+      var c = arr[i];
+      while(c.charAt(0)==' ') {
+        c = c.substring(1,c.length);
+      }
+      if(c.indexOf(name + "=") == 0) {
+        return c.substring(name.length+1,c.length);
+      }
+    }
+    return null;
+  }
+
+  landmark.__test__ = {setCookie: setCookie, getCookie: getCookie};
+
   //--------------------------------------------------------------------------
   //
   // Events
