@@ -122,10 +122,11 @@
         this.log("[landmark] API Key required. Please call landmark.initialize() first.");
         return;
       }
-      // Temporary: Notify the console if the user is not identified.
-      if(!this.userId) {
-        this.log("[landmark] User is not identified.");
-        return;
+
+      // Retrieve the tracking identifier for this browser.
+      var t = getCookie(cookieId())
+      if(!t) {
+        setCookie(cookieId(), (t = this.uuid()));
       }
 
       // Throw away the traits after we save them once.
@@ -138,7 +139,10 @@
       // Send event data to "GET /track".
       var path = "/track";
       path += "?apiKey=" + encodeURIComponent(this.apiKey);
-      path += "&id=" + encodeURIComponent(this.userId);
+      path += "&t=" + encodeURIComponent(t);
+      if(this.userId && (typeof(this.userId) == "number" || typeof(this.userId) == "string")) {
+        path += "&id=" + encodeURIComponent(this.userId);
+      }
       if(!isEmpty(traits)) {
         path += "&traits=" + encodeURIComponent(JSON.stringify(traits));
       }
@@ -179,6 +183,18 @@
           console.log(arguments);
         }
       }
+    },
+
+    /**
+     * Generates an RFC4122 version 4 UUID.
+     *
+     * http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript
+     */
+    uuid : function() {
+      return "xxxxxxxxxxxx4xxxyxxxxxxxxxxxxxxx".replace(/[xy]/g, function(c) {
+          var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+          return v.toString(16);
+      });
     },
 
     /**
@@ -303,18 +319,13 @@
   }
 
   /**
-   * Generates an RFC4122 version 4 UUID.
-   *
-   * http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript
+   * Retrieves the name of the id cookie.
    */
-  function uuid() {
-    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
-        var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
-        return v.toString(16);
-    });
+  function cookieId() {
+    return "__ldmkid";
   }
 
-  landmark.__test__ = {setCookie: setCookie, getCookie: getCookie, uuid:uuid};
+  landmark.__test__ = {setCookie: setCookie, getCookie: getCookie};
 
 
   //--------------------------------------------------------------------------
