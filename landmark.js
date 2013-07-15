@@ -108,7 +108,26 @@
     track : function(action, properties) {
       if(typeof(properties) != "object") properties = {};
       var event = extend({}, properties, {action:action});
-      return this.send(event)
+      return this.send(event);
+    },
+
+    /**
+     * Tracks the current page. By default, the path is normalized to remove
+     * sections that start with numbers.
+     *
+     * @param {Object} properties  The action properties.
+     */
+    trackPage : function(properties, options) {
+      if(typeof(properties) != "object") properties = {};
+      if(typeof(options) != "object") options = {};
+      if(options.normalize != false) options.normalize = true;
+
+      var action = this.pathname();
+      if(options.normalize) {
+        action = this.normalize(action);
+      }
+      
+      return this.track(action, properties);
     },
 
     /**
@@ -198,12 +217,19 @@
     },
 
     /**
+     * Retrieves the path name of the current page.
+     */
+    pathname : function() {
+      return window.location.pathname;
+    },
+    
+    /**
      * Generalizes a path by replacing numeric directories with a zero. This
      * function also replaces directories starting with a number and a dash.
      */
-    path : function(str) {
+    normalize : function(str) {
       if(typeof(str) != "string") return str;
-      str = str.replace(/\/(\d+|\d+-[^\/]+)(?=\/|$)/g, "/*");
+      str = str.replace(/\/(\d+|\d+-[^\/]+)(?=\/|$)/g, "/-");
       return str;
     },
 

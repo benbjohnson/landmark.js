@@ -3,6 +3,7 @@ var requests, logs;
 var responseText = null, errorText = null;
 
 var createXMLHttpRequest = landmark.createXMLHttpRequest;
+var pathname = landmark.pathname;
 var uuid = landmark.uuid;
 var onload = window.onload;
 
@@ -17,6 +18,7 @@ window.onload = function() {};
 module("Basic", {
   setup: function() {
     landmark.log("TEST");
+    landmark.pathname();
     landmark.__test__.setCookie("__ldmkid", null);
 
     requests = [], logs = [];
@@ -42,6 +44,7 @@ module("Basic", {
     landmark.uuid = function() {
       return "xxxx"
     };
+    landmark.pathname = pathname;
   },
   teardown: function() {
     landmark.initialize(null);
@@ -99,6 +102,14 @@ test("Reidentification after init should send a new request.", function() {
   equal(requests[1].path, "/track?apiKey=0000&t=xxxx&id=foo&traits=%7B%22name%22%3A%22Bob%20Smith%22%7D");
 });
 
+test("Should track page with normalized path", function() {
+  landmark.pathname = function() { return "/users/2391/edit"; };
+  landmark.identify("john", {});
+  landmark.trackPage();
+  landmark.__initialize__();
+  equal(requests.length, 1);
+  equal(requests[0].path, "/track?apiKey=0000&t=xxxx&id=john&properties=%7B%22action%22%3A%22%2Fusers%2F-%2Fedit%22%7D");
+});
 
 //--------------------------------------
 // Error Handling
@@ -139,6 +150,6 @@ test("Track() and Identify() should work using a push() style interface", functi
 //--------------------------------------
 
 test("Generalize path should replace numeric sections of path", function() {
-  equal(landmark.path("/accounts/123/users/456"), "/accounts/*/users/*");
-  equal(landmark.path("/accounts/123-apple-computer/users/456-steve-jobs"), "/accounts/*/users/*");
+  equal(landmark.normalize("/accounts/123/users/456"), "/accounts/-/users/-");
+  equal(landmark.normalize("/accounts/123-apple-computer/users/456-steve-jobs"), "/accounts/-/users/-");
 });
