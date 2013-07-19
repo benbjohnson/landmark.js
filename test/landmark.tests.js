@@ -17,12 +17,14 @@ window.onload = function() {};
 
 module("Basic", {
   setup: function() {
+    window.location.hash = "";
     landmark.log("TEST");
     landmark.pathname();
     landmark.__test__.setCookie("__ldmkid", null);
 
     requests = [], logs = [];
     landmark.__uninitialize__();
+    landmark.config({});
     landmark.initialize(API_KEY);
     landmark.createXMLHttpRequest = function(method, path, loadHandler, errorHandler) {
       var xhr = {};
@@ -112,6 +114,22 @@ test("Should track page with normalized path", function() {
 });
 
 //--------------------------------------
+// Hash State
+//--------------------------------------
+
+asyncTest("Should track hash state", function() {
+  landmark.config({trackHashChange:true});
+  landmark.__initialize__();
+  window.location.hash = "#/users/123/edit";
+  setTimeout(function() {
+    equal(requests.length, 1);
+    equal(decodeURIComponent(requests[0].path), '/track?apiKey=0000&t=xxxx&properties={"action":"/test/index.html#/users/-/edit"}');
+    window.location.hash = "";
+    setTimeout(function() { start()}, 100);
+  }, 100);
+});
+
+//--------------------------------------
 // Error Handling
 //--------------------------------------
 
@@ -151,5 +169,6 @@ test("Track() and Identify() should work using a push() style interface", functi
 
 test("Generalize path should replace numeric sections of path", function() {
   equal(landmark.normalize("/accounts/123/users/456"), "/accounts/-/users/-");
+  equal(landmark.normalize("/accounts/123#/users/456"), "/accounts/-#/users/-");
   equal(landmark.normalize("/accounts/123-apple-computer/users/456-steve-jobs"), "/accounts/-/users/-");
 });

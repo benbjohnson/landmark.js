@@ -1,4 +1,6 @@
 (function() {
+  var config = {};
+
   var landmark = {
     //--------------------------------------------------------------------------
     //
@@ -6,6 +8,7 @@
     //
     //--------------------------------------------------------------------------
 
+    // The host/port where landmark is hosted.
     host : "landmark.io",
     port : null,
 
@@ -56,6 +59,28 @@
      */
     __uninitialize__ : function() {
       this.initialized = false;
+      this.userId = null;
+      this.traits = null;
+    },
+
+
+    //----------------------------------
+    // Configuration
+    //----------------------------------
+
+    /**
+     * Updates the configuration settings.
+     *
+     * @param {Object} config  The configuration hash.
+     */
+    config : function(obj) {
+      if(arguments.length == 0) return config;
+      if(obj == null) {
+        config = {};
+      } else {
+        config = extend(config, obj)
+      }
+      return this;
     },
 
 
@@ -123,6 +148,9 @@
       if(options.normalize != false) options.normalize = true;
 
       var action = this.pathname();
+      if(options.includeHash) {
+        action += window.location.hash
+      }
       if(options.normalize) {
         action = this.normalize(action);
       }
@@ -229,7 +257,7 @@
      */
     normalize : function(str) {
       if(typeof(str) != "string") return str;
-      str = str.replace(/\/(\d+|\d+-[^\/]+)(?=\/|$)/g, "/-");
+      str = str.replace(/\/(\d+|\d+-[^\/#]+)(?=\/|#|$)/g, "/-");
       return str;
     },
 
@@ -365,6 +393,15 @@
   window.onload = function() {
     landmark.__initialize__();
     if(typeof(onload) == "function") onload();
+  }
+
+  // Wrap existing onhashchange.
+  var onhashchange = window.onhashchange;
+  window.onhashchange = function() {
+    if(config.trackHashChange) {
+      landmark.trackPage({}, {includeHash:true});
+    }
+    if(typeof(onhashchange) == "function") onhashchange();
   }
 
   window.landmark = landmark;
