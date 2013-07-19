@@ -257,7 +257,7 @@
      */
     normalize : function(str) {
       if(typeof(str) != "string") return str;
-      str = str.replace(/\/(\d+|\d+-[^\/#]+)(?=\/|#|$)/g, "/-");
+      str = str.replace(/\/(\d+|\d+-[^\/#]+)(?=\/|#|$)/g, "/:id");
       return str;
     },
 

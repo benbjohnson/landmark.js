@@ -69,7 +69,7 @@ test("Identify() with traits should issue a request", function() {
   landmark.__initialize__();
   equal(logs.length, 0);
   equal(requests.length, 1);
-  equal(requests[0].path, "/track?apiKey=0000&t=xxxx&id=foo&traits=%7B%22name%22%3A%22Susy%20Q%22%7D");
+  equal(decodeURIComponent(requests[0].path), '/track?apiKey=0000&t=xxxx&id=foo&traits={"name":"Susy Q"}');
 });
 
 test("Identify() without traits should not issue a request", function() {
@@ -83,7 +83,7 @@ test("Identify() and Track() before initialization should issue one request", fu
   landmark.track("/checkout.html", {"total":200});
   landmark.__initialize__();
   equal(requests.length, 1);
-  equal(requests[0].path, "/track?apiKey=0000&t=xxxx&id=foo&traits=%7B%22name%22%3A%22Susy%20Q%22%7D&properties=%7B%22total%22%3A200%2C%22action%22%3A%22%2Fcheckout.html%22%7D");
+  equal(decodeURIComponent(requests[0].path), '/track?apiKey=0000&t=xxxx&id=foo&traits={"name":"Susy Q"}&properties={"total":200,"action":"/checkout.html"}');
 });
 
 test("Identify() before init and Track() after init should issue two requests", function() {
@@ -91,8 +91,8 @@ test("Identify() before init and Track() after init should issue two requests", 
   landmark.__initialize__();
   landmark.track("/checkout.html", {"total":200});
   equal(requests.length, 2);
-  equal(requests[0].path, "/track?apiKey=0000&t=xxxx&id=foo&traits=%7B%22name%22%3A%22Susy%20Q%22%7D");
-  equal(requests[1].path, "/track?apiKey=0000&t=xxxx&id=foo&properties=%7B%22total%22%3A200%2C%22action%22%3A%22%2Fcheckout.html%22%7D");
+  equal(decodeURIComponent(requests[0].path), '/track?apiKey=0000&t=xxxx&id=foo&traits={"name":"Susy Q"}');
+  equal(decodeURIComponent(requests[1].path), '/track?apiKey=0000&t=xxxx&id=foo&properties={"total":200,"action":"/checkout.html"}');
 });
 
 test("Reidentification after init should send a new request.", function() {
@@ -100,8 +100,8 @@ test("Reidentification after init should send a new request.", function() {
   landmark.__initialize__();
   landmark.identify("foo", {"name":"Bob Smith"});
   equal(requests.length, 2);
-  equal(requests[0].path, "/track?apiKey=0000&t=xxxx&id=foo&traits=%7B%22name%22%3A%22Susy%20Q%22%7D");
-  equal(requests[1].path, "/track?apiKey=0000&t=xxxx&id=foo&traits=%7B%22name%22%3A%22Bob%20Smith%22%7D");
+  equal(decodeURIComponent(requests[0].path), '/track?apiKey=0000&t=xxxx&id=foo&traits={"name":"Susy Q"}');
+  equal(decodeURIComponent(requests[1].path), '/track?apiKey=0000&t=xxxx&id=foo&traits={"name":"Bob Smith"}');
 });
 
 test("Should track page with normalized path", function() {
@@ -110,7 +110,7 @@ test("Should track page with normalized path", function() {
   landmark.trackPage();
   landmark.__initialize__();
   equal(requests.length, 1);
-  equal(requests[0].path, "/track?apiKey=0000&t=xxxx&id=john&properties=%7B%22action%22%3A%22%2Fusers%2F-%2Fedit%22%7D");
+  equal(decodeURIComponent(requests[0].path), '/track?apiKey=0000&t=xxxx&id=john&properties={"action":"/users/:id/edit"}');
 });
 
 //--------------------------------------
@@ -123,10 +123,10 @@ asyncTest("Should track hash state", function() {
   window.location.hash = "#/users/123/edit";
   setTimeout(function() {
     equal(requests.length, 1);
-    equal(decodeURIComponent(requests[0].path), '/track?apiKey=0000&t=xxxx&properties={"action":"/test/index.html#/users/-/edit"}');
+    equal(decodeURIComponent(requests[0].path), '/track?apiKey=0000&t=xxxx&properties={"action":"/test/index.html#/users/:id/edit"}');
     window.location.hash = "";
-    setTimeout(function() { start()}, 100);
-  }, 100);
+    setTimeout(function() { start()}, 50);
+  }, 50);
 });
 
 //--------------------------------------
@@ -168,7 +168,7 @@ test("Track() and Identify() should work using a push() style interface", functi
 //--------------------------------------
 
 test("Generalize path should replace numeric sections of path", function() {
-  equal(landmark.normalize("/accounts/123/users/456"), "/accounts/-/users/-");
-  equal(landmark.normalize("/accounts/123#/users/456"), "/accounts/-#/users/-");
-  equal(landmark.normalize("/accounts/123-apple-computer/users/456-steve-jobs"), "/accounts/-/users/-");
+  equal(landmark.normalize("/accounts/123/users/456"), "/accounts/:id/users/:id");
+  equal(landmark.normalize("/accounts/123#/users/456"), "/accounts/:id#/users/:id");
+  equal(landmark.normalize("/accounts/123-apple-computer/users/456-steve-jobs"), "/accounts/:id/users/:id");
 });
