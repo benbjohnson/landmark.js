@@ -16,6 +16,10 @@
     userId : null,
     traits : null,
 
+    // A list of pending tracking events to be sent after the library is
+    // initialized.
+    pending : [],
+
     // A flag stating if user level data has been sent to the server yet.
     // User level data will be sent with the first event or will be sent
     // by itself if no event is available after initialization.
@@ -49,8 +53,16 @@
     __initialize__ : function() {
       this.initialized = true;
 
-      // Send off identification if a track() hasn't already sent it.
-      this.send();
+      // Send off pending tracking events.
+      if(this.pending.length > 0) {
+        for(var i=0; i<this.pending.length; i++) {
+          this.send(this.pending[i]);
+        }
+      // If no tracking events exist then send any traits set.
+      } else if(!isEmpty(this.traits)) {
+        this.send();
+      }
+      this.pending = [];
     },
 
     /**
@@ -61,6 +73,7 @@
       this.initialized = false;
       this.userId = null;
       this.traits = null;
+      this.pending = [];
     },
 
 
@@ -114,7 +127,7 @@
       this.userId = userId;
       this.traits = traits;
 
-      if(this.initialized && this.traits) {
+      if(this.initialized && !isEmpty(this.traits)) {
         this.send();
       }
     },
@@ -164,6 +177,12 @@
      * @param {Object} properties  The event properties to send.
      */
     send : function(properties) {
+      // If the library hasn't initialized then put it into a pending queue.
+      if(!this.initialized) {
+        this.pending.push(properties);
+        return;
+      }
+
       // Notify the JavaScript console if the user don't have an API key set.
       if(!this.apiKey) {
         this.log("[landmark] API Key required. Please call landmark.initialize() first.");

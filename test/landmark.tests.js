@@ -24,7 +24,7 @@ module("Basic", {
 
     requests = [], logs = [];
     landmark.__uninitialize__();
-    landmark.config({});
+    landmark.config(null);
     landmark.initialize(API_KEY);
     landmark.createXMLHttpRequest = function(method, path, loadHandler, errorHandler) {
       var xhr = {};
@@ -79,11 +79,13 @@ test("Identify() without traits should not issue a request", function() {
 });
 
 test("Identify() and Track() before initialization should issue one request", function() {
+  landmark.track("/signup.html");
   landmark.identify("foo", {"name":"Susy Q"});
   landmark.track("/checkout.html", {"total":200});
   landmark.__initialize__();
-  equal(requests.length, 1);
-  equal(decodeURIComponent(requests[0].path), '/track?apiKey=0000&t=xxxx&id=foo&traits={"name":"Susy Q"}&properties={"total":200,"action":"/checkout.html"}');
+  equal(requests.length, 2);
+  equal(decodeURIComponent(requests[0].path), '/track?apiKey=0000&t=xxxx&id=foo&traits={"name":"Susy Q"}&properties={"action":"/signup.html"}');
+  equal(decodeURIComponent(requests[1].path), '/track?apiKey=0000&t=xxxx&id=foo&properties={"total":200,"action":"/checkout.html"}');
 });
 
 test("Identify() before init and Track() after init should issue two requests", function() {
