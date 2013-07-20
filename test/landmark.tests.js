@@ -120,10 +120,11 @@ test("Should track page with normalized path", function() {
 asyncTest("Should track hash state", function() {
   landmark.config({trackHashChange:true});
   landmark.__initialize__();
+  landmark.identify("jane", {});
   window.location.hash = "#/users/123/edit";
   setTimeout(function() {
     equal(requests.length, 1);
-    equal(decodeURIComponent(requests[0].path), '/track?apiKey=0000&t=xxxx&properties={"action":"/test/index.html#/users/:id/edit"}');
+    equal(requests[0] ? decodeURIComponent(requests[0].path) : null, '/track?apiKey=0000&t=xxxx&id=jane&properties={"action":"/test/index.html#/users/:id/edit"}');
     window.location.hash = "";
     setTimeout(function() { start()}, 50);
   }, 50);

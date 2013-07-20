@@ -170,6 +170,13 @@
         return;
       }
 
+      // Don't track if there's no id and cookies are not enabled.
+      var userIdAvailable = (this.userId && (typeof(this.userId) == "number" || typeof(this.userId) == "string"));
+      if(!userIdAvailable && !getCookiesEnabled()) {
+        this.log("[landmark] Cookies not enabled.");
+        return;
+      }
+
       // Retrieve the tracking identifier for this browser.
       var t = getCookie(cookieId())
       if(!t) {
@@ -187,7 +194,7 @@
       var path = "/track";
       path += "?apiKey=" + encodeURIComponent(this.apiKey);
       path += "&t=" + encodeURIComponent(t);
-      if(this.userId && (typeof(this.userId) == "number" || typeof(this.userId) == "string")) {
+      if(userIdAvailable) {
         path += "&id=" + encodeURIComponent(this.userId);
       }
       if(!isEmpty(traits)) {
@@ -373,13 +380,31 @@
   }
 
   /**
+   * Checks to see if cookies are enabled.
+   * 
+   * @return {Boolean}  True if cookies are enabled. Otherwise, false.
+   */
+  function getCookiesEnabled() {
+    if(typeof navigator.cookieEnabled == "undefined") {
+      document.cookie="testcookie";
+      if(document.cookie.indexOf("testcookie") != -1) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return navigator.cookieEnabled;
+    }
+  }
+
+  /**
    * Retrieves the name of the id cookie.
    */
   function cookieId() {
     return "__ldmkid";
   }
 
-  landmark.__test__ = {setCookie: setCookie, getCookie: getCookie};
+  landmark.__test__ = {setCookie: setCookie, getCookie: getCookie, getCookiesEnabled:getCookiesEnabled};
 
 
   //--------------------------------------------------------------------------
