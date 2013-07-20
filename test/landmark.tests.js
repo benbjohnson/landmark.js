@@ -61,6 +61,23 @@ module("Basic", {
 //------------------------------------------------------------------------------
 
 //--------------------------------------
+// Initialization
+//--------------------------------------
+
+test("Invoke methods called before initialization", function() {
+  var invocations = [];
+  invocations.push("blah", 123);
+  invocations.push("identify", "foo", {"name":"Susy Q"});
+  invocations.push("track", "/index.html");
+  landmark.__test__.processInvocations(invocations);
+  landmark.__initialize__();
+  equal(logs.length, 1);
+  equal(logs[0], "[landmark] Unprocessed arguments: blah,123");
+  equal(requests.length, 1);
+  equal(decodeURIComponent(requests[0].path), '/track?apiKey=0000&t=xxxx&id=foo&traits={"name":"Susy Q"}&properties={"action":"/index.html"}');
+});
+
+//--------------------------------------
 // Basic identify/track
 //--------------------------------------
 

@@ -239,7 +239,6 @@
       return xhr;
     },
 
-    
 
     //----------------------------------
     // Utility
@@ -423,7 +422,48 @@
     return "__ldmkid";
   }
 
-  landmark.__test__ = {setCookie: setCookie, getCookie: getCookie, getCookiesEnabled:getCookiesEnabled};
+  //----------------------------------
+  // Process invocation
+  //----------------------------------
+
+  /**
+   * Processes method calls and arguments stored in an array.
+   *
+   * @param {Array} arr  A list of methods and arguments.
+   */
+  function processInvocations(arr) {
+    if(Object.prototype.toString.call(arr) != "[object Array]") return;
+
+    // Separate out method invocations with their arguments.
+    var invocations = [];
+    var unprocessed = [];
+    for(var i=0; i<arr.length; i++) {
+      if(typeof(arr[i]) == "string" && typeof(landmark[arr[i]]) == "function") {
+        invocations.push({name:arr[i], arguments:[]})
+      } else if(invocations.length > 0) {
+        invocations[invocations.length-1].arguments.push(arr[i]);
+      } else {
+        unprocessed.push(arr[i]);
+      }
+    }
+
+    // Notify log if there are any arguments that aren't processed.
+    if(unprocessed.length > 0) {
+      landmark.log("[landmark] Unprocessed arguments: " + unprocessed.join(","))
+    }
+
+    // Loop over method invocations and actually invoke them.
+    for(var i=0; i<invocations.length; i++) {
+      landmark[invocations[i].name].apply(landmark, invocations[i].arguments);
+    }
+  }
+  
+  landmark.__test__ = {
+    setCookie: setCookie,
+    getCookie: getCookie,
+    getCookiesEnabled: getCookiesEnabled,
+    processInvocations: processInvocations,
+  };
 
 
   //--------------------------------------------------------------------------
@@ -448,5 +488,8 @@
     if(typeof(onhashchange) == "function") onhashchange();
   }
 
+  // Process invocations to the library before it was loaded.
+  invocations = window.landmark;
   window.landmark = landmark;
+  processInvocations(invocations);
 })();
