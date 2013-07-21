@@ -142,33 +142,39 @@
      *
      * @param {String} action      The name of the action to track.
      * @param {Object} properties  The action properties.
+     * @param {Object} options
      */
-    track : function(action, properties) {
+    track : function(action, properties, options) {
       if(typeof(properties) != "object") properties = {};
-      var event = extend({}, properties, {action:action});
+      if(typeof(options) != "object") options = {};
+
+      // Create path with optional hash.
+      var path = this.pathname();
+      if(options.includeHash) {
+        path += window.location.hash
+      }
+
+      // Construct the base parameters to track.
+      var base = {
+        __channel__: "web",
+        __action__: action,
+        __uri__: this.normalize(path),
+        __path__: path,
+      };
+
+      // Send event to server.
+      var event = extend(base, properties);
       return this.send(event);
     },
 
     /**
-     * Tracks the current page. By default, the path is normalized to remove
-     * sections that start with numbers.
+     * Tracks the a page view on the current url.
      *
      * @param {Object} properties  The action properties.
+     * @param {Object} options
      */
-    trackPage : function(properties, options) {
-      if(typeof(properties) != "object") properties = {};
-      if(typeof(options) != "object") options = {};
-      if(options.normalize != false) options.normalize = true;
-
-      var action = this.pathname();
-      if(options.includeHash) {
-        action += window.location.hash
-      }
-      if(options.normalize) {
-        action = this.normalize(action);
-      }
-      
-      return this.track(action, properties);
+    trackPageView : function(properties, options) {
+      return this.track('page_view', properties, options);
     },
 
     /**
@@ -483,7 +489,7 @@
   var onhashchange = window.onhashchange;
   window.onhashchange = function() {
     if(config.trackHashChange) {
-      landmark.trackPage({}, {includeHash:true});
+      landmark.trackPageView({}, {includeHash:true});
     }
     if(typeof(onhashchange) == "function") onhashchange();
   }

@@ -68,20 +68,20 @@ test("Invoke methods called before initialization", function() {
   var invocations = [];
   invocations.push("blah", 123);
   invocations.push("identify", "foo", {"name":"Susy Q"});
-  invocations.push("track", "/index.html");
+  invocations.push("track", "view");
   landmark.__test__.processInvocations(invocations);
   landmark.__initialize__();
   equal(logs.length, 1);
   equal(logs[0], "[landmark] Unprocessed arguments: blah,123");
   equal(requests.length, 1);
-  equal(decodeURIComponent(requests[0].path), '/track?apiKey=0000&t=xxxx&id=foo&traits={"name":"Susy Q"}&properties={"action":"/index.html"}');
+  equal(decodeURIComponent(requests[0].path), '/track?apiKey=0000&t=xxxx&id=foo&traits={"name":"Susy Q"}&properties={"__channel__":"web","__action__":"view","__uri__":"/test/index.html","__path__":"/test/index.html"}');
 });
 
 //--------------------------------------
 // Basic identify/track
 //--------------------------------------
 
-test("Identify() with traits should issue a request", function() {
+test("Identifying with traits should issue a request", function() {
   landmark.identify("foo", {"name":"Susy Q"});
   landmark.__initialize__();
   equal(logs.length, 0);
@@ -89,29 +89,29 @@ test("Identify() with traits should issue a request", function() {
   equal(decodeURIComponent(requests[0].path), '/track?apiKey=0000&t=xxxx&id=foo&traits={"name":"Susy Q"}');
 });
 
-test("Identify() without traits should not issue a request", function() {
+test("Identifying without traits should not issue a request", function() {
   landmark.identify("foo");
   landmark.__initialize__();
   equal(requests.length, 0);
 });
 
-test("Identify() and Track() before initialization should issue one request", function() {
-  landmark.track("/signup.html");
+test("Identifying and tracking before initialization should issue one request", function() {
+  landmark.trackPageView();
   landmark.identify("foo", {"name":"Susy Q"});
-  landmark.track("/checkout.html", {"total":200});
+  landmark.track("purchase", {"total":200});
   landmark.__initialize__();
   equal(requests.length, 2);
-  equal(decodeURIComponent(requests[0].path), '/track?apiKey=0000&t=xxxx&id=foo&traits={"name":"Susy Q"}&properties={"action":"/signup.html"}');
-  equal(decodeURIComponent(requests[1].path), '/track?apiKey=0000&t=xxxx&id=foo&properties={"total":200,"action":"/checkout.html"}');
+  equal(decodeURIComponent(requests[0].path), '/track?apiKey=0000&t=xxxx&id=foo&traits={"name":"Susy Q"}&properties={"__channel__":"web","__action__":"page_view","__uri__":"/test/index.html","__path__":"/test/index.html"}');
+  equal(decodeURIComponent(requests[1].path), '/track?apiKey=0000&t=xxxx&id=foo&properties={"__channel__":"web","__action__":"purchase","__uri__":"/test/index.html","__path__":"/test/index.html","total":200}');
 });
 
-test("Identify() before init and Track() after init should issue two requests", function() {
+test("Identifying before initialization and tracking after init should issue two requests", function() {
   landmark.identify("foo", {"name":"Susy Q"});
   landmark.__initialize__();
-  landmark.track("/checkout.html", {"total":200});
+  landmark.track("checkout", {"total":200});
   equal(requests.length, 2);
   equal(decodeURIComponent(requests[0].path), '/track?apiKey=0000&t=xxxx&id=foo&traits={"name":"Susy Q"}');
-  equal(decodeURIComponent(requests[1].path), '/track?apiKey=0000&t=xxxx&id=foo&properties={"total":200,"action":"/checkout.html"}');
+  equal(decodeURIComponent(requests[1].path), '/track?apiKey=0000&t=xxxx&id=foo&properties={"__channel__":"web","__action__":"checkout","__uri__":"/test/index.html","__path__":"/test/index.html","total":200}');
 });
 
 test("Reidentification after init should send a new request.", function() {
@@ -126,10 +126,10 @@ test("Reidentification after init should send a new request.", function() {
 test("Should track page with normalized path", function() {
   landmark.pathname = function() { return "/users/2391/edit"; };
   landmark.identify("john", {});
-  landmark.trackPage();
+  landmark.trackPageView();
   landmark.__initialize__();
   equal(requests.length, 1);
-  equal(decodeURIComponent(requests[0].path), '/track?apiKey=0000&t=xxxx&id=john&properties={"action":"/users/:id/edit"}');
+  equal(decodeURIComponent(requests[0].path), '/track?apiKey=0000&t=xxxx&id=john&properties={"__channel__":"web","__action__":"page_view","__uri__":"/users/:id/edit","__path__":"/users/2391/edit"}');
 });
 
 //--------------------------------------
@@ -143,7 +143,7 @@ asyncTest("Should track hash state", function() {
   window.location.hash = "#/users/123/edit";
   setTimeout(function() {
     equal(requests.length, 1);
-    equal(requests[0] ? decodeURIComponent(requests[0].path) : null, '/track?apiKey=0000&t=xxxx&id=jane&properties={"action":"/test/index.html#/users/:id/edit"}');
+    equal(requests[0] ? decodeURIComponent(requests[0].path) : null, '/track?apiKey=0000&t=xxxx&id=jane&properties={"__channel__":"web","__action__":"page_view","__uri__":"/test/index.html#/users/:id/edit","__path__":"/test/index.html#/users/123/edit"}');
     window.location.hash = "";
     setTimeout(function() { start()}, 50);
   }, 50);
@@ -178,7 +178,7 @@ test("Server errors should be logged to the console", function() {
 test("Track() and Identify() should work using a push() style interface", function() {
   landmark.push("identify", "foo", {"name":"Susy Q"});
   landmark.__initialize__();
-  landmark.push("track", "/checkout.html", {"total":200});
+  landmark.push("track", "checkout", {"total":200});
   equal(requests.length, 2);
 });
 

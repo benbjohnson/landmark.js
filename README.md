@@ -48,7 +48,7 @@ In addition to identifying users you can also track individual actions that a us
 
 ```html
 <script>
-  landmark.push("track", "/index.html")
+  landmark.push("track", "checkout")
 </script>
 ```
 
@@ -56,6 +56,6 @@ The `track` function also allows you to track properties about the event:
 
 ```html
 <script>
-  landmark.push("track", "/checkout.html", {"purchasePrice":102.32, "numItems":3})
+  landmark.push("track", "checkout", {"purchasePrice":102.32, "numItems":3})
 </script>
 ```
