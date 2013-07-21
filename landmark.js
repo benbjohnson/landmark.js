@@ -497,8 +497,20 @@
     if(typeof(onhashchange) == "function") onhashchange();
   }
 
-  // Process invocations to the library before it was loaded.
+  // Save invocations made before the library was loaded.
   invocations = window.landmark;
   window.landmark = landmark;
+
+  // Retrieve data fields set on the script tag itself.
+  var script = document.getElementsByTagName("script");
+  script = script[script.length - 1];
+  if(script.hasAttribute('data-api-key')) {
+    landmark.initialize(script.getAttribute('data-api-key'))
+  }
+  if(script.hasAttribute('data-user-id')) {
+    landmark.identify(script.getAttribute('data-user-id'))
+  }
+
+  // Process early invocations.
   processInvocations(invocations);
 })();
