@@ -51,17 +51,20 @@
      * Internal initialization for the API once the web page is loaded.
      */
     __initialize__ : function() {
+      // Prepend a page view if one has not been made.
+      var pageViewCount = this.pending.filter(function(e) { return e && e.__action__ == "page_view"}).length;
+      if(pageViewCount == 0) {
+        this.trackPageView();
+        this.pending.unshift(this.pending.pop());
+      }
+
       this.initialized = true;
 
-      // Send off pending tracking events.
-      if(this.pending.length > 0) {
-        for(var i=0; i<this.pending.length; i++) {
-          this.send(this.pending[i]);
-        }
-      // If no tracking events exist then send any traits set.
-      } else if(!isEmpty(this.traits)) {
-        this.send();
+      // Send all pending sends.
+      for(var i=0; i<this.pending.length; i++) {
+        this.send(this.pending[i]);
       }
+
       this.pending = [];
     },
 
