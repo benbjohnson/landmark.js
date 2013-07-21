@@ -101,7 +101,7 @@ test("Identifying and tracking before initialization should issue one request", 
   landmark.track("purchase", {"total":200});
   landmark.__initialize__();
   equal(requests.length, 2);
-  equal(decodeURIComponent(requests[0].path), '/track?apiKey=0000&t=xxxx&id=foo&traits={"name":"Susy Q"}&properties={"__channel__":"web","__action__":"page_view","__uri__":"/test/index.html","__path__":"/test/index.html"}');
+  equal(decodeURIComponent(requests[0].path), '/track?apiKey=0000&t=xxxx&id=foo&traits={"name":"Susy Q"}&properties={"__channel__":"web","__action__":"__page_view__","__uri__":"/test/index.html","__path__":"/test/index.html"}');
   equal(decodeURIComponent(requests[1].path), '/track?apiKey=0000&t=xxxx&id=foo&properties={"__channel__":"web","__action__":"purchase","__uri__":"/test/index.html","__path__":"/test/index.html","total":200}');
 });
 
@@ -129,7 +129,7 @@ test("Should track page with normalized path", function() {
   landmark.trackPageView();
   landmark.__initialize__();
   equal(requests.length, 1);
-  equal(decodeURIComponent(requests[0].path), '/track?apiKey=0000&t=xxxx&id=john&properties={"__channel__":"web","__action__":"page_view","__uri__":"/users/:id/edit","__path__":"/users/2391/edit"}');
+  equal(decodeURIComponent(requests[0].path), '/track?apiKey=0000&t=xxxx&id=john&properties={"__channel__":"web","__action__":"__page_view__","__uri__":"/users/:id/edit","__path__":"/users/2391/edit"}');
 });
 
 //--------------------------------------
@@ -143,7 +143,7 @@ asyncTest("Should track hash state", function() {
   window.location.hash = "#/users/123/edit";
   setTimeout(function() {
     equal(requests.length, 1);
-    equal(requests[0] ? decodeURIComponent(requests[0].path) : null, '/track?apiKey=0000&t=xxxx&id=jane&properties={"__channel__":"web","__action__":"page_view","__uri__":"/test/index.html#/users/:id/edit","__path__":"/test/index.html#/users/123/edit"}');
+    equal(requests[0] ? decodeURIComponent(requests[0].path) : null, '/track?apiKey=0000&t=xxxx&id=jane&properties={"__channel__":"web","__action__":"__page_view__","__uri__":"/test/index.html#/users/:id/edit","__path__":"/test/index.html#/users/123/edit"}');
     window.location.hash = "";
     setTimeout(function() { start()}, 50);
   }, 50);

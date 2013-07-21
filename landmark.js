@@ -174,7 +174,7 @@
      * @param {Object} options
      */
     trackPageView : function(properties, options) {
-      return this.track('page_view', properties, options);
+      return this.track('__page_view__', properties, options);
     },
 
     /**
