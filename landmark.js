@@ -161,7 +161,7 @@
       var base = {
         __channel__: "web",
         __action__: action,
-        __uri__: this.normalize(path),
+        __resource__: this.normalize(path),
         __path__: path,
       };
 

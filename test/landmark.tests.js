@@ -74,7 +74,7 @@ test("Invoke methods called before initialization", function() {
   equal(logs.length, 1);
   equal(logs[0], "[landmark] Unprocessed arguments: blah,123");
   equal(requests.length, 1);
-  equal(decodeURIComponent(requests[0].path), '/track?apiKey=0000&t=xxxx&id=foo&traits={"name":"Susy Q"}&properties={"__channel__":"web","__action__":"__page_view__","__uri__":"/test/index.html","__path__":"/test/index.html"}');
+  equal(decodeURIComponent(requests[0].path), '/track?apiKey=0000&t=xxxx&id=foo&traits={"name":"Susy Q"}&properties={"__channel__":"web","__action__":"__page_view__","__resource__":"/test/index.html","__path__":"/test/index.html"}');
 });
 
 //--------------------------------------
@@ -102,8 +102,8 @@ test("Identifying before initialization and tracking after init should issue two
   landmark.__initialize__();
   landmark.track("checkout", {"total":200});
   equal(requests.length, 2);
-  equal(decodeURIComponent(requests[0].path), '/track?apiKey=0000&t=xxxx&id=foo&traits={"name":"Susy Q"}&properties={"__channel__":"web","__action__":"__page_view__","__uri__":"/test/index.html","__path__":"/test/index.html"}');
-  equal(decodeURIComponent(requests[1].path), '/track?apiKey=0000&t=xxxx&id=foo&properties={"__channel__":"web","__action__":"checkout","__uri__":"/test/index.html","__path__":"/test/index.html","total":200}');
+  equal(decodeURIComponent(requests[0].path), '/track?apiKey=0000&t=xxxx&id=foo&traits={"name":"Susy Q"}&properties={"__channel__":"web","__action__":"__page_view__","__resource__":"/test/index.html","__path__":"/test/index.html"}');
+  equal(decodeURIComponent(requests[1].path), '/track?apiKey=0000&t=xxxx&id=foo&properties={"__channel__":"web","__action__":"checkout","__resource__":"/test/index.html","__path__":"/test/index.html","total":200}');
 });
 
 test("Reidentification after init should send a new request.", function() {
@@ -111,7 +111,7 @@ test("Reidentification after init should send a new request.", function() {
   landmark.__initialize__();
   landmark.identify("foo", {"name":"Bob Smith"});
   equal(requests.length, 2);
-  equal(decodeURIComponent(requests[0].path), '/track?apiKey=0000&t=xxxx&id=foo&traits={"name":"Susy Q"}&properties={"__channel__":"web","__action__":"__page_view__","__uri__":"/test/index.html","__path__":"/test/index.html"}');
+  equal(decodeURIComponent(requests[0].path), '/track?apiKey=0000&t=xxxx&id=foo&traits={"name":"Susy Q"}&properties={"__channel__":"web","__action__":"__page_view__","__resource__":"/test/index.html","__path__":"/test/index.html"}');
   equal(decodeURIComponent(requests[1].path), '/track?apiKey=0000&t=xxxx&id=foo&traits={"name":"Bob Smith"}');
 });
 
@@ -120,7 +120,7 @@ test("Should track page with normalized path", function() {
   landmark.identify("john", {});
   landmark.__initialize__();
   equal(requests.length, 1);
-  equal(decodeURIComponent(requests[0].path), '/track?apiKey=0000&t=xxxx&id=john&properties={"__channel__":"web","__action__":"__page_view__","__uri__":"/users/:id/edit","__path__":"/users/2391/edit"}');
+  equal(decodeURIComponent(requests[0].path), '/track?apiKey=0000&t=xxxx&id=john&properties={"__channel__":"web","__action__":"__page_view__","__resource__":"/users/:id/edit","__path__":"/users/2391/edit"}');
 });
 
 //--------------------------------------
@@ -135,7 +135,7 @@ asyncTest("Should track hash state", function() {
   window.location.hash = "#/users/123/edit";
   setTimeout(function() {
     equal(requests.length, 1);
-    equal(requests[0] ? decodeURIComponent(requests[0].path) : null, '/track?apiKey=0000&t=xxxx&id=jane&properties={"__channel__":"web","__action__":"__page_view__","__uri__":"/test/index.html#/users/:id/edit","__path__":"/test/index.html#/users/123/edit"}');
+    equal(requests[0] ? decodeURIComponent(requests[0].path) : null, '/track?apiKey=0000&t=xxxx&id=jane&properties={"__channel__":"web","__action__":"__page_view__","__resource__":"/test/index.html#/users/:id/edit","__path__":"/test/index.html#/users/123/edit"}');
     window.location.hash = "";
     setTimeout(function() { start()}, 50);
   }, 50);
@@ -159,7 +159,7 @@ test("Server errors should be logged to the console", function() {
   landmark.identify("foo", {"name":"Susy Q"});
   landmark.__initialize__();
   equal(logs.length, 1);
-  deepEqual(logs[0].slice(0, 2), ["[landmark] GET /track?apiKey=0000&t=xxxx&id=foo&traits=%7B%22name%22%3A%22Susy%20Q%22%7D&properties=%7B%22__channel__%22%3A%22web%22%2C%22__action__%22%3A%22__page_view__%22%2C%22__uri__%22%3A%22%2Ftest%2Findex.html%22%2C%22__path__%22%3A%22%2Ftest%2Findex.html%22%7D", {message:"Something went wrong"}]);
+  deepEqual(logs[0].slice(0, 2), ["[landmark] GET /track?apiKey=0000&t=xxxx&id=foo&traits=%7B%22name%22%3A%22Susy%20Q%22%7D&properties=%7B%22__channel__%22%3A%22web%22%2C%22__action__%22%3A%22__page_view__%22%2C%22__resource__%22%3A%22%2Ftest%2Findex.html%22%2C%22__path__%22%3A%22%2Ftest%2Findex.html%22%7D", {message:"Something went wrong"}]);
 });
 
 
