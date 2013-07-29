@@ -258,7 +258,7 @@
      */
     hud : function() {
       var $this = this;
-      var xhr = this.createXMLHttpRequest("GET", "/api_keys/" + this.apiKey + "/auth",
+      var xhr = this.createXMLHttpRequest("GET", "/projects/auth?apiKey=" + this.apiKey,
         function() {
           var src = "";
           if($this.host() != null) src += ('https:' === document.location.protocol ? 'https://' : 'http://') + $this.host() + ($this.port() > 0 ? ":" + $this.port() : "");
