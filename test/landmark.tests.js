@@ -25,7 +25,7 @@ module("Basic", {
     requests = [], logs = [];
     landmark.__uninitialize__();
     landmark.config(null);
-    landmark.initialize(API_KEY);
+    landmark.hud = function() {};
     landmark.createXMLHttpRequest = function(method, path, loadHandler, errorHandler) {
       var xhr = {};
       xhr.send = function() {
@@ -47,6 +47,7 @@ module("Basic", {
       return "xxxx"
     };
     landmark.pathname = pathname;
+    landmark.initialize(API_KEY);
   },
   teardown: function() {
     landmark.initialize(null);

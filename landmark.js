@@ -8,9 +8,8 @@
     //
     //--------------------------------------------------------------------------
 
-    // The host/port where landmark is hosted.
-    host : "landmark.io",
-    port : null,
+    // A reference to the script tag this script was loaded from.
+    scriptTag : null,
 
     // The user identifier & data.
     userId : null,
@@ -43,6 +42,7 @@
      */
     initialize : function(apiKey) {
       this.apiKey = apiKey;
+      this.hud();
       return true;
     },
 
@@ -250,6 +250,53 @@
 
 
     //----------------------------------
+    // HUD
+    //----------------------------------
+
+    /**
+     * Initializes the HUD display by loading the hud.js dependency.
+     */
+    hud : function() {
+      var $this = this;
+      var xhr = this.createXMLHttpRequest("GET", "/api_keys/" + this.apiKey + "/auth",
+        function() {
+          var src = "";
+          if($this.host() != null) src += ('https:' === document.location.protocol ? 'https://' : 'http://') + $this.host() + ($this.port() > 0 ? ":" + $this.port() : "");
+          src += "/assets/landmark-hud.js";
+
+          var script = document.createElement('script');
+          script.type = "text/javascript";
+          script.async = true;
+          script.src = src;
+          $this.scriptTag.parentNode.insertBefore(script);
+        },
+        function() {}
+      );
+      if(xhr) {
+        xhr.send();
+      }
+    },
+
+
+    //----------------------------------
+    // Remote
+    //----------------------------------
+
+    src : function() {
+      return (this.scriptTag && this.scriptTag.src ? this.scriptTag.src : "");
+    },
+
+    host : function() {
+      var m = this.src().match(/https?:\/\/([^:\/]+)/);
+      return (m ? m.pop() : null);
+    },
+
+    port : function() {
+      var m = this.src().match(/https?:\/\/(?:[^:\/]+):(\d+)/);
+      return (m ? parseInt(m.pop()) : null);
+    },
+
+    //----------------------------------
     // Utility
     //----------------------------------
 
@@ -304,7 +351,10 @@
      * @return {XMLHTTPRequest}  The XHR that was created.
      */
     createXMLHttpRequest : function(method, path, loadHandler, errorHandler) {
-      var url = location.protocol + "//" + this.host + (this.port > 0 ? ":" + this.port : "") + path;
+      var url = "";
+      if(this.host() != null) url += ('https:' === document.location.protocol ? 'https://' : 'http://') + this.host() + (this.port() > 0 ? ":" + this.port() : "");
+      url += path;
+
       var xhr = new XMLHttpRequest();
       if("withCredentials" in xhr) {
         xhr.open(method, url, true);
@@ -502,13 +552,19 @@
   window.landmark = landmark;
 
   // Retrieve data fields set on the script tag itself.
-  var script = document.getElementsByTagName("script");
-  script = script[script.length - 1];
-  if(script.hasAttribute('data-api-key')) {
-    landmark.initialize(script.getAttribute('data-api-key'))
+  var scriptTags = document.getElementsByTagName("script");
+  for(var i=0; i<scriptTags.length; i++) {
+    var scriptTag = scriptTags[i];
+    if(scriptTag.src && scriptTag.src.search(/landmark\.js$/) != -1) {
+      landmark.scriptTag = scriptTag;
+      break;
+    }
   }
-  if(script.hasAttribute('data-user-id')) {
-    landmark.identify(script.getAttribute('data-user-id'))
+  if(landmark.scriptTag.hasAttribute('data-api-key')) {
+    landmark.initialize(landmark.scriptTag.getAttribute('data-api-key'))
+  }
+  if(landmark.scriptTag.hasAttribute('data-user-id')) {
+    landmark.identify(landmark.scriptTag.getAttribute('data-user-id'))
   }
 
   // Process early invocations.
