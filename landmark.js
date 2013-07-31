@@ -1,5 +1,8 @@
 (function() {
   var config = {};
+  var xhrs = [];
+  var xhrDelay = 20, xhrSyncTimeout = 50;
+  var xhrTimeoutId = 0;
 
   var landmark = {
     //--------------------------------------------------------------------------
@@ -244,7 +247,7 @@
       }
 
       var self = this;
-      var xhr = this.createXMLHttpRequest("GET", path, true,
+      this.sendXMLHttpRequest("GET", path, true,
         function() {},
         function() {
           var response = {};
@@ -252,11 +255,6 @@
           self.log("[landmark] GET " + path, response, traits, properties);
         }
       );
-      if(xhr == null) return null;
-      
-      // Send request.
-      xhr.send();
-      return xhr;
     },
 
 
@@ -384,6 +382,43 @@
       xhr.onerror = errorHandler;
 
       return xhr;
+    },
+
+    /**
+     * Queues an XHR to be sent.
+     * 
+     * @param {XMLHttpRequest} xhr   The XHR to send.
+     */
+    sendXMLHttpRequest : function(method, path, loadHandler, errorHandler) {
+      xhrs.push({
+        method:method,
+        path:path,
+        loadHandler:loadHandler,
+        errorHandler:errorHandler,
+      });
+      if(xhrTimeoutId) clearTimeout(xhrTimeoutId);
+      xhrTimeoutId = setTimeout(this.deliverXMLHttpRequests, xhrDelay);
+    },
+
+    /**
+     * Delivers all pending XHR requests.
+     * 
+     * @param {Boolean} async  A flag stating if the requests should be sent asynchronously.
+     */
+    deliverPendingXMLHttpRequests : function(async) {
+      var $this = this;
+      if(arguments.length == 0) async = true;
+      xhrs.forEach(function(xhr) {
+        xhr = $this.createXMLHttpRequest(xhr.method, xhr.path, async, xhr.loadHandler, xhr.errorHandler);
+        if(xhr) {
+          if(!async) {
+            try {
+              xhr.timeout = xhrSyncTimeout;
+            } catch(e) {}
+          }
+          xhr.send();
+        }
+      });
     },
   };
 
@@ -560,6 +595,13 @@
   window.onload = function() {
     landmark.__initialize__();
     if(typeof(onload) == "function") onload();
+  }
+
+  // Wrap existing onbeforeunload.
+  var onbeforeunload = window.onbeforeunload;
+  window.onbeforeunload = function() {
+    landmark.deliverPendingXMLHttpRequests(false);
+    if(typeof(onbeforeunload) == "function") onbeforeunload();
   }
 
   // Wrap existing onclick.
