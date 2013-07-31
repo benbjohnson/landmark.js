@@ -17,7 +17,7 @@ module("XHR")
 //--------------------------------------
 
 asyncTest("XHR should work on CORS-supported browsers", 1, function() {
-  var xhr = landmark.createXMLHttpRequest.call(landmark, "GET", "/echo",
+  var xhr = landmark.createXMLHttpRequest.call(landmark, "GET", "/echo", true,
     function() {
       ok(true, "CORS Supported")
       start();

@@ -233,7 +233,7 @@
       }
 
       var self = this;
-      var xhr = this.createXMLHttpRequest("GET", path,
+      var xhr = this.createXMLHttpRequest("GET", path, true,
         function() {},
         function() {
           var response = {};
@@ -258,7 +258,7 @@
      */
     hud : function() {
       var $this = this;
-      var xhr = this.createXMLHttpRequest("GET", "/projects/auth?apiKey=" + this.apiKey,
+      var xhr = this.createXMLHttpRequest("GET", "/projects/auth?apiKey=" + this.apiKey, true,
         function() {
           var src = "";
           if($this.host() != null) src += ('https:' === document.location.protocol ? 'https://' : 'http://') + $this.host() + ($this.port() > 0 ? ":" + $this.port() : "");
@@ -345,19 +345,20 @@
     /**
      * Creates a new XHR object, if possible.
      * 
-     * @param {String} path   The path to send to.
-     * @param {Object} data  The object to convert to JSON and send.
+     * @param {String} method   The HTTP method to use.
+     * @param {String} path     The path to send to.
+     * @param {String} async    A flag stating if the request is asynchronous.
      *
      * @return {XMLHTTPRequest}  The XHR that was created.
      */
-    createXMLHttpRequest : function(method, path, loadHandler, errorHandler) {
+    createXMLHttpRequest : function(method, path, async, loadHandler, errorHandler) {
       var url = "";
       if(this.host() != null) url += ('https:' === document.location.protocol ? 'https://' : 'http://') + this.host() + (this.port() > 0 ? ":" + this.port() : "");
       url += path;
 
       var xhr = new XMLHttpRequest();
       if("withCredentials" in xhr) {
-        xhr.open(method, url, true);
+        xhr.open(method, url, async);
         xhr.setRequestHeader("Content-type", "application/json");
         xhr.setRequestHeader("Cache-Control", "no-cache");
       } else if (typeof XDomainRequest != "undefined") {

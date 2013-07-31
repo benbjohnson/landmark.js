@@ -26,7 +26,7 @@ module("Basic", {
     landmark.__uninitialize__();
     landmark.config(null);
     landmark.hud = function() {};
-    landmark.createXMLHttpRequest = function(method, path, loadHandler, errorHandler) {
+    landmark.createXMLHttpRequest = function(method, path, async, loadHandler, errorHandler) {
       var xhr = {};
       xhr.send = function() {
         requests.push({method:method, path:path});
