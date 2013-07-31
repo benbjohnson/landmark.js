@@ -181,6 +181,17 @@
     },
 
     /**
+     * Tracks a click to a given url.
+     *
+     * @param {Object} properties  The action properties.
+     * @param {Object} options
+     */
+    trackClick : function(href, properties, options) {
+      properties = extend({__href__: href}, properties);
+      return this.track('__click__', properties, options);
+    },
+
+    /**
      * Sends an event with the current identity, data and action.
      *
      * @param {Object} properties  The event properties to send.
@@ -482,6 +493,18 @@
     return "__ldmkid";
   }
 
+  /**
+   * Finds a parent node or self with the given node name.
+   */
+  function getParentByNodeName(obj, nodeName) {
+    nodeName = nodeName.toLowerCase();
+    while(obj != null) {
+      if(obj.nodeName.toLowerCase() == nodeName) break;
+      obj = obj.parentNode;
+    }
+    return obj;
+  };
+
   //----------------------------------
   // Process invocation
   //----------------------------------
@@ -537,6 +560,20 @@
   window.onload = function() {
     landmark.__initialize__();
     if(typeof(onload) == "function") onload();
+  }
+
+  // Wrap existing onclick.
+  var onclick = document.onclick;
+  document.onclick = function(event) {
+    if (!event) var event = window.event;
+    var target = (event.target ? event.target : event.srcElement);
+    if(target.nodeType == 3) target = target.parentNode;
+    var a = getParentByNodeName(target, "a");
+    if(a) {
+      landmark.trackClick(landmark.normalize(a.href));
+    }
+
+    if(typeof(onclick) == "function") onclick();
   }
 
   // Wrap existing onhashchange.
