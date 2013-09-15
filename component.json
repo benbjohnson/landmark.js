@@ -45,7 +45,11 @@
   },
   "development": {
     "component/once": "*",
-    "component/assert": "*"
+    "ianstormtaylor/assert": "*",
+    "ianstormtaylor/sinon": "*",
+    "ianstormtaylor/trigger-event": "*",
+    "segmentio/when": "*",
+    "timoxley/next-tick": "*"
   },
   "scripts": [
     "lib/index.js",
