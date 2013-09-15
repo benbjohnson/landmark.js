@@ -1,0 +1,7 @@
+{
+  "name": "landmark",
+  "version": "0.1.0",
+  "main": "landmark.js",
+  "dependencies": {},
+  "devDependencies": {}
+}
