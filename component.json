@@ -5,7 +5,7 @@
   "version": "0.1.0",
   "keywords": [
     "analytics",
-    "landmark",
+    "landmark"
   ],
   "dependencies": {
     "avetisk/defaults": "0.0.4",
@@ -45,11 +45,11 @@
   },
   "development": {
     "component/once": "*",
-    "component/assert": "*",
+    "component/assert": "*"
   },
   "scripts": [
     "lib/index.js",
-    "lib/analytics.js",
+    "lib/landmark.js",
     "lib/cookie.js",
     "lib/user.js"
   ],
