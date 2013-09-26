@@ -1,6 +1,6 @@
 describe('Landmark', function(){
 
-  var landmark = window.landmark || require('landmark.js/lib/index')
+  var landmark = window.landmark || require('landmark/lib/index')
     , assert = require('assert');
 
   describe('#initialize()', function(){

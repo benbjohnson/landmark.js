@@ -1,5 +1,5 @@
 
-# landmark.js
+# landmark
 
   Client library for the Landmark service
 
