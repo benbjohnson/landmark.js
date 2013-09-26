@@ -5,7 +5,11 @@
   "version": "0.0.1",
   "keywords": [],
   "dependencies": {
-    "component/bind": "0.0.1"
+    "avetisk/defaults": "0.0.4",
+    "component/bind": "0.0.1",
+    "component/clone": "0.1.0",
+    "component/cookie": "1.0.1",
+    "segmentio/top-domain": "0.0.1"
   },
   "development": {
     "component/assert": "*",
@@ -17,7 +21,8 @@
   "main": "lib/index.js",
   "scripts": [
     "lib/index.js",
-    "lib/landmark.js"
+    "lib/landmark.js",
+    "lib/cookie.js"
   ],
   "remotes": []
 }
