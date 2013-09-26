@@ -1,6 +1,7 @@
 
 COMPONENT = node_modules/component/bin/component
 UGLIFY = node_modules/uglify-js/bin/uglifyjs
+PHANTOM = node_modules/.bin/mocha-phantomjs
 
 build: components lib/*.js
 	@component build --dev
@@ -13,7 +14,7 @@ landmark.js: components
 	$(UGLIFY) landmark.js --output landmark.min.js
 
 test: build
-	@mocha
+	$(PHANTOM) test/index.html
 
 clean:
 	rm -fr build components template.js

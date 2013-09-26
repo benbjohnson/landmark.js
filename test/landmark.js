@@ -1,10 +1,12 @@
-var assert = require("assert");
-
 describe('Landmark', function(){
-  describe('#indexOf()', function(){
-    it('should return -1 when the value is not present', function(){
-      assert(-1, [1,2,3].indexOf(5));
-      assert(-1, [1,2,3].indexOf(0));
+
+  var landmark = window.landmark || require('landmark.js/lib/index')
+    , assert = require('assert');
+
+  describe('#initialize()', function(){
+    it('should be initialized', function(){
+      landmark.initialize();
+      assert(landmark._initialized);
     })
   })
 })
