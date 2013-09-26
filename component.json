@@ -9,7 +9,10 @@
     "component/bind": "0.0.1",
     "component/clone": "0.1.0",
     "component/cookie": "1.0.1",
-    "segmentio/top-domain": "0.0.1"
+    "ianstormtaylor/is": "0.0.5",
+    "segmentio/extend": "0.0.1",
+    "segmentio/top-domain": "0.0.1",
+    "timoxley/next-tick": "0.0.2"
   },
   "development": {
     "component/assert": "*",
@@ -22,7 +25,8 @@
   "scripts": [
     "lib/index.js",
     "lib/landmark.js",
-    "lib/cookie.js"
+    "lib/cookie.js",
+    "lib/user.js"
   ],
   "remotes": []
 }
