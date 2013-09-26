@@ -19,13 +19,11 @@ clean:
 test: build server
 	sleep 1
 	$(PHANTOM) $(TEST)/core
-	$(PHANTOM) $(TEST)/integrations
 	make kill
 
 test-browser: build server
 	sleep 1
 	open $(TEST)/core
-	open $(TEST)/integrations
 
 release: clean build landmark.js server
 	sleep 1
