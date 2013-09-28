@@ -9,7 +9,7 @@
     "component/bind": "0.0.1",
     "component/clone": "0.1.0",
     "component/cookie": "1.0.1",
-    "ianstormtaylor/is": "0.0.5",
+    "component/type": "1.0.0",
     "segmentio/extend": "0.0.1",
     "segmentio/top-domain": "0.0.1",
     "timoxley/next-tick": "0.0.2"
@@ -25,6 +25,7 @@
   "scripts": [
     "lib/index.js",
     "lib/landmark.js",
+    "lib/device.js",
     "lib/cookie.js",
     "lib/user.js"
   ],

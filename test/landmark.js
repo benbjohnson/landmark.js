@@ -41,9 +41,5 @@ describe('Landmark', function(){
       assert(landmark.user.id() == null);
       assert(landmark.user.traits().name == "susy");
     });
-
-    it('should invoke callback', function(done){
-      landmark.identify("foo", {"name":"john"}, done);
-    });
   });
 });
