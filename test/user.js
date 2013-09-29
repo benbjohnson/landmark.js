@@ -1,7 +1,8 @@
 describe('User', function(){
 
   var User = require('landmark/lib/user')
-    , assert = require('assert');
+    , assert = require('assert')
+    , equals = require('equals');
 
   var user = null;
 
@@ -57,6 +58,23 @@ describe('User', function(){
       user.logout();
       assert(user.id() === null);
       assert(user.traits().name === undefined);
+    });
+  });
+
+  describe('#serialize()', function(){
+    it('should serialize id and traits', function(){
+      user.identify("100", {name:"John", age:20});
+      assert(equals(user.serialize(), {id:"100", traits:{name:"John", age:20}}));
+    });
+
+    it('should serialize id only', function(){
+      user.identify("100");
+      assert(equals(user.serialize(), {id:"100"}));
+    });
+
+    it('should serialize traits only', function(){
+      user.identify(null, {name:"John", age:20});
+      assert(equals(user.serialize(), {traits:{name:"John", age:20}}));
     });
   });
 });
