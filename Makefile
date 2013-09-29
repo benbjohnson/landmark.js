@@ -14,7 +14,7 @@ landmark.js: components
 	$(COMPONENT) build --standalone landmark --out . --name landmark
 	$(UGLIFY) landmark.js --output landmark.min.js
 
-test: build
+test: lint build
 	$(PHANTOM) test/index.html
 
 lint:
